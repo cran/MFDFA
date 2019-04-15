@@ -12,7 +12,7 @@ MFDFA(tsx, scale, m=1, q)
 \item{scale}{Vector of scales. There is no default value
 for this parameter, please add values.}
 
-\item{m}{Polynomial order for the detrending (by defaults m=1).}
+\item{m}{An integer of the polynomial order for the detrending (by default m=1).}
 
 \item{q}{q-order of the moment. There is no default value
 for this parameter, please add values.}
@@ -38,38 +38,35 @@ following website \href{https://ch.mathworks.com/matlabcentral/fileexchange/3826
 
 \dontrun{
 ## MFDFA package installation: from github ####
-
 install.packages("devtools")
-
 devtools::install_github("mlaib/MFDFA")
-}
-library(MFDFA)
 
+## Get the Parellel version:
+devtools::source_gist("bb0c09df9593dad16ae270334ec3e7d7", filename = "MFDFA2.r")
+}
+
+library(MFDFA)
 a<-0.9
 N<-1024
 tsx<-MFsim(N,a)
-
 scale=10:100
 q<--10:10
 m<-1
-mfdfa<-MFDFA(tsx, scale, m, q)
+b<-MFDFA(tsx, scale, m, q)
 
 \dontrun{
 ## Results plot ####
 dev.new()
 par(mai=rep(1, 4))
-plot(q, mfdfa$Hq, col=1, axes= F, ylab=expression('h'[q]), pch=16, cex.lab=1.8,
+plot(q, b$Hq, col=1, axes= F, ylab=expression('h'[q]), pch=16, cex.lab=1.8,
      cex.axis=1.8, main="Hurst exponent",
-     ylim=c(min(mfdfa$Hq),max(mfdfa$Hq)))
+     ylim=c(min(b$Hq),max(b$Hq)))
 grid(col="midnightblue")
 axis(1)
 axis(2)
 
 ##################################
 ## Suggestion of output plot: ####
-##################################
-
-##################################
 ## Supplementary functions: #####
 reset <- function(){
 par(mfrow=c(1, 1), oma=rep(0, 4), mar=rep(0, 4), new=TRUE)
@@ -81,7 +78,6 @@ poly_fit<-function(x,y,n){
   poly.res<-res1[length(res1):1]
   allres<-list(polyfit=poly.res, model1=formule)
   return(allres)}
-##################################
 
 ##################################
 ## Output plots: #################
@@ -89,13 +85,13 @@ dev.new()
 layout(matrix(c(1,2,3,4), 2, 2, byrow = TRUE),heights=c(4, 4))
 ## b : mfdfa output
 par(mai=rep(0.8, 4))
+
 ## 1st plot: Scaling function order Fq (q-order RMS)
 p1<-c(1,which(q==0),which(q==q[length(q)]))
 plot(log2(scale),log2(b$Fqi[,1]),  pch=16, col=1, axes = F, xlab = "s (days)",
      ylab=expression('log'[2]*'(F'[q]*')'), cex=1, cex.lab=1.6, cex.axis=1.6,
-     main= "Fluctuation functionFq",
+     main= "Fluctuation function Fq",
      ylim=c(min(log2(b$Fqi[,c(p1)])),max(log2(b$Fqi[,c(p1)]))))
-
 lines(log2(scale),b$line[,1], type="l", col=1, lwd=2)
 grid(col="midnightblue")
 axis(2)
@@ -108,14 +104,10 @@ for (i in 2:3){
   points(log2(scale), log2(b$Fqi[,k]),  col=i,pch=16)
   lines(log2(scale),b$line[,k], type="l", col=i, lwd=2)
 }
-
 legend("bottomright", c(paste('q','=',q[p1] , sep=' ' )),cex=2,lwd=c(2,2,2),
  bty="n", col=1:3)
 
-
-
 ## 2nd plot: q-order Hurst exponent
-
 plot(q, b$Hq, col=1, axes= F, ylab=expression('h'[q]), pch=16, cex.lab=1.8,
     cex.axis=1.8, main="Hurst exponent", ylim=c(min(b$Hq),max(b$Hq)))
 grid(col="midnightblue")
@@ -126,18 +118,14 @@ axis(2, cex=4)
 plot(q, b$tau_q, col=1, axes=F, cex.lab=1.8, cex.axis=1.8,
      main="Mass exponent",
      pch=16,ylab=expression(tau[q]))
-
 grid(col="midnightblue")
 axis(1, cex=4)
 axis(2, cex=4)
 
-
 ## 4th plot: Multifractal spectrum
-
 plot(b$spec$hq, b$spec$Dq, col=1, axes=F, pch=16, #main="Multifractal spectrum",
      ylab=bquote("f ("~alpha~")"),cex.lab=1.8, cex.axis=1.8,
      xlab=bquote(~alpha))
-
 grid(col="midnightblue")
 axis(1, cex=4)
 axis(2, cex=4)
@@ -164,6 +152,9 @@ J. W. Kantelhardt, S. A. Zschiegner, E. Koscielny-Bunde, S. Havlin,
 A. Bunde, H. Stanley, Multifractal detrended fluctuation analysis of
 nonstationary time series, Physica A: Statistical Mechanics and its
 Applications, 316 (1) (2002) 87 – 114.
+
+Kantelhardt J.W. (2012) Fractal and Multifractal Time Series. In: Meyers R. (eds)
+Mathematics of Complexity and Dynamical Systems. Springer, New York, NY.
 
 M. Laib, L. Telesca and M. Kanevski, Long-range fluctuations and
 multifractality in connectivity density time series of a wind speed
